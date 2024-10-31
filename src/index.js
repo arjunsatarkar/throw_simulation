@@ -119,6 +119,8 @@ RAPIER.init().then(() => {
     objElement.style.width = `${objSize.x}px`;
     objElement.style.height = `${objSize.y}px`;
 
+    eventQueue.free();
+
     setTimeout(mainLoop, STEP_MS);
   };
 
