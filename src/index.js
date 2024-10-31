@@ -9,6 +9,7 @@ const OBJ_MASS = 100;
 const SCORE_DECAY_CURVE_L = 1000;
 const SCORE_DECAY_CURVE_K = 0.01;
 const SCORE_DECAY_CURVE_X0 = 1000;
+const SCORE_DECAY_FACTOR = 30;
 const SCORE_INCREMENT = 150;
 const STEP_MS = 33;
 const TARGET_WIDTH_FACTOR = 0.05;
@@ -87,7 +88,7 @@ RAPIER.init().then(() => {
       SCORE_DECAY_CURVE_L /
         (1 + Math.exp(-SCORE_DECAY_CURVE_K * (score - SCORE_DECAY_CURVE_X0)));
     if (score_gap > score_decay_coefficient) {
-      score -= Math.max(Math.log(score), 1);
+      score -= score / SCORE_DECAY_FACTOR;
       score = Math.max(score, 0);
     }
 
