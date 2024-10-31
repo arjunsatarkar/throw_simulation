@@ -11,16 +11,29 @@
         margin: 0;
       }
 
-      div#throwable {
+      #throwable {
         position: fixed;
         transform: translate(-50%, -50%);
         border-radius: 50%;
         background-color: black;
         background-size: cover;
       }
+
+      #scoreboard {
+        position: fixed;
+        transform: translate(-50%, -50%);
+        top: 70%;
+        left: 50%;
+        font-family: monospace;
+      }
     </style>
   </head>
   <body>
+    <div id="scoreboard">
+      SCORE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="score"></span>
+      <br />
+      HIGH SCORE&nbsp;&nbsp;<span id="high-score"></span>
+    </div>
     <div id="throwable"></div>
   </body>
 </html>

@@ -1,28 +1,35 @@
 import RAPIER from "./rapier.es.js";
 
-const objElement = document.querySelector("div#throwable");
+const CLICK_IMPULSE_MULTIPLIER = 300_000;
+const GRAVITY = { x: 0.0, y: 2000 };
+const LINEAR_DAMPING = 0.5;
+const OBJ_BASE_RADIUS = 30;
+const OBJ_BASE_SIZE = { x: OBJ_BASE_RADIUS * 2, y: OBJ_BASE_RADIUS * 2 };
+const OBJ_MASS = 100;
+const SCORE_DECAY_RATE = 5;
+const SCORE_DECAY_THRESHOLD = 150;
+const SCORE_INCREMENT = 150;
+const STEP_MS = 33;
+const TARGET_WIDTH_FACTOR = 0.05;
+const VIEWPORT_SIZE = {
+  x: document.documentElement.clientWidth,
+  y: document.documentElement.clientHeight,
+};
+const WIDTH_JUMP_FACTOR = 5;
+
+const objElement = document.querySelector("#throwable");
 
 const queryParams = new URLSearchParams(window.location.search);
 const image = queryParams.get("image");
 if (image !== null) {
+  objElement.style.backgroundColor = "white";
   objElement.style.backgroundImage = `url(${decodeURI(image)})`;
 }
 
-RAPIER.init().then(() => {
-  const CLICK_IMPULSE_MULTIPLIER = 300_000;
-  const GRAVITY = { x: 0.0, y: 2000 };
-  const LINEAR_DAMPING = 0.5;
-  const OBJ_BASE_RADIUS = 30;
-  const OBJ_BASE_SIZE = { x: OBJ_BASE_RADIUS * 2, y: OBJ_BASE_RADIUS * 2 };
-  const OBJ_MASS = 100;
-  const STEP_MS = 33;
-  const TARGET_WIDTH_FACTOR = 0.05;
-  const VIEWPORT_SIZE = {
-    x: document.documentElement.clientWidth,
-    y: document.documentElement.clientHeight,
-  };
-  const WIDTH_JUMP_FACTOR = 5;
+const scoreElement = document.querySelector("#score");
+const highScoreElement = document.querySelector("#high-score");
 
+RAPIER.init().then(() => {
   let world = new RAPIER.World(GRAVITY);
 
   const wallColliderDescs = {
@@ -39,19 +46,48 @@ RAPIER.init().then(() => {
     .setLinearDamping(LINEAR_DAMPING)
     .setCcdEnabled(true);
   let obj = world.createRigidBody(objRigidBodyDesc);
-  world.createCollider(
-    RAPIER.ColliderDesc.ball(OBJ_BASE_RADIUS).setMass(OBJ_MASS),
-    obj,
-  );
+  let objColliderDesc = RAPIER.ColliderDesc.ball(OBJ_BASE_RADIUS)
+    .setMass(OBJ_MASS)
+    .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+  world.createCollider(objColliderDesc, obj);
 
   const objSize = {
     x: OBJ_BASE_SIZE.x,
     y: OBJ_BASE_SIZE.y,
   };
   let objVelocityLastFrame = null;
+  let lastCollision = { handle1: null, handle2: null };
+  let score = 0;
+  let highScore = score;
+  let lastScoredAt = performance.now();
 
   let mainLoop = () => {
-    world.step();
+    let eventQueue = new RAPIER.EventQueue(true);
+
+    world.step(eventQueue);
+
+    eventQueue.drainCollisionEvents((handle1, handle2, started) => {
+      if (
+        started &&
+        (handle1 !== lastCollision.handle1 || handle2 !== lastCollision.handle2)
+      ) {
+        score += SCORE_INCREMENT;
+        if (score > highScore) {
+          highScore = score;
+        }
+        lastScoredAt = performance.now();
+      }
+      lastCollision = { handle1: handle1, handle2: handle2 };
+    });
+
+    const now = performance.now();
+    if (now - lastScoredAt > SCORE_DECAY_THRESHOLD) {
+      score -= SCORE_DECAY_RATE;
+      score = Math.max(score, 0);
+    }
+
+    scoreElement.textContent = `${score}`;
+    highScoreElement.textContent = `${highScore}`;
 
     const objPosition = obj.translation();
     objElement.style.left = `${objPosition.x}px`;
