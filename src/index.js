@@ -24,7 +24,7 @@ const objElement = document.querySelector("#throwable");
 const queryParams = new URLSearchParams(window.location.search);
 const image = queryParams.get("image");
 if (image !== null) {
-  objElement.style.backgroundColor = "white";
+  objElement.style.backgroundColor = "inherit";
   objElement.style.backgroundImage = `url(${decodeURI(image)})`;
 }
 
