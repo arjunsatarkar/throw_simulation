@@ -6,8 +6,9 @@ const LINEAR_DAMPING = 0.5;
 const OBJ_BASE_RADIUS = 30;
 const OBJ_BASE_SIZE = { x: OBJ_BASE_RADIUS * 2, y: OBJ_BASE_RADIUS * 2 };
 const OBJ_MASS = 100;
-const SCORE_DECAY_RATE = 5;
-const SCORE_DECAY_THRESHOLD = 150;
+const SCORE_DECAY_CURVE_L = 1000;
+const SCORE_DECAY_CURVE_K = 0.01;
+const SCORE_DECAY_CURVE_X0 = 1000;
 const SCORE_INCREMENT = 150;
 const STEP_MS = 33;
 const TARGET_WIDTH_FACTOR = 0.05;
@@ -80,14 +81,18 @@ RAPIER.init().then(() => {
       lastCollision = { handle1: handle1, handle2: handle2 };
     });
 
-    const now = performance.now();
-    if (now - lastScoredAt > SCORE_DECAY_THRESHOLD) {
-      score -= SCORE_DECAY_RATE;
+    const score_gap = performance.now() - lastScoredAt;
+    const score_decay_coefficient =
+      SCORE_DECAY_CURVE_L -
+      SCORE_DECAY_CURVE_L /
+        (1 + Math.exp(-SCORE_DECAY_CURVE_K * (score - SCORE_DECAY_CURVE_X0)));
+    if (score_gap > score_decay_coefficient) {
+      score -= Math.max(Math.log(score), 1);
       score = Math.max(score, 0);
     }
 
-    scoreElement.textContent = `${score}`;
-    highScoreElement.textContent = `${highScore}`;
+    scoreElement.textContent = `${Math.round(score)}`;
+    highScoreElement.textContent = `${Math.round(highScore)}`;
 
     const objPosition = obj.translation();
     objElement.style.left = `${objPosition.x}px`;
