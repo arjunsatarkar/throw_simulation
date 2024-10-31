@@ -10,7 +10,7 @@ run: build
 get_dependencies:
 	npm install --include=dev --fund=false
 
-format:
+format: get_dependencies
 	npx prettier . --write
 
 clean:
