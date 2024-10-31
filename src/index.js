@@ -1,5 +1,13 @@
 import RAPIER from "./rapier.es.js";
 
+const objElement = document.querySelector("div#throwable");
+
+const queryParams = new URLSearchParams(window.location.search);
+const image = queryParams.get("image");
+if (image !== null) {
+  objElement.style.backgroundImage = `url(${decodeURI(image)})`;
+}
+
 RAPIER.init().then(() => {
   const CLICK_IMPULSE_MULTIPLIER = 300_000;
   const GRAVITY = { x: 0.0, y: 2000 };
@@ -36,7 +44,6 @@ RAPIER.init().then(() => {
     obj,
   );
 
-  const objElement = document.querySelector("div#throwable");
   const objSize = {
     x: OBJ_BASE_SIZE.x,
     y: OBJ_BASE_SIZE.y,
@@ -81,12 +88,15 @@ RAPIER.init().then(() => {
       y: clickPosition.y - objPosition.y,
     };
     const distance = Math.sqrt(direction.x ** 2 + direction.y ** 2);
-    obj.setLinvel({x: 0, y: 0});
+    obj.setLinvel({ x: 0, y: 0 });
     if (distance > 0) {
-      obj.applyImpulse({
-        x: (direction.x * CLICK_IMPULSE_MULTIPLIER) / distance,
-        y: (direction.y * CLICK_IMPULSE_MULTIPLIER) / distance,
-      });
+      obj.applyImpulse(
+        {
+          x: (direction.x * CLICK_IMPULSE_MULTIPLIER) / distance,
+          y: (direction.y * CLICK_IMPULSE_MULTIPLIER) / distance,
+        },
+        true,
+      );
     }
   });
 
