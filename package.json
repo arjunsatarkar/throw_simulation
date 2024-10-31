@@ -3,6 +3,7 @@
     "@dimforge/rapier2d-compat": "^0.14.0"
   },
   "devDependencies": {
+    "http-server": "^14.1.1",
     "prettier": "3.3.3"
   }
 }
