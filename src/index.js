@@ -62,10 +62,9 @@ RAPIER.init().then(() => {
   let score = 0;
   let highScore = score;
   let lastScoredAt = performance.now();
+  const eventQueue = new RAPIER.EventQueue(true);
 
   let mainLoop = () => {
-    let eventQueue = new RAPIER.EventQueue(true);
-
     world.step(eventQueue);
 
     eventQueue.drainCollisionEvents((handle1, handle2, started) => {
@@ -118,8 +117,6 @@ RAPIER.init().then(() => {
 
     objElement.style.width = `${objSize.x}px`;
     objElement.style.height = `${objSize.y}px`;
-
-    eventQueue.free();
 
     setTimeout(mainLoop, STEP_MS);
   };
