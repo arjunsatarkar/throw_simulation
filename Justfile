@@ -1,4 +1,4 @@
-build: get_dependencies
+build: get_deps
 	mkdir -p dist
 	cp src/index.html dist/index.html
 	cp src/index.js dist/index.js
@@ -7,11 +7,14 @@ build: get_dependencies
 run: build
 	npx http-server dist/
 
-get_dependencies:
-	npm install --include=dev --fund=false
-
-format: get_dependencies
+format: get_deps
 	npx prettier . --write
+
+check: get_deps
+	npx prettier . --check
+
+get_deps:
+	npm ci --include=dev --fund=false
 
 clean:
 	rm -rf dist node_modules

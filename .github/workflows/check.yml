@@ -7,5 +7,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: npm ci --include=dev
-      - run: npx prettier . --check
+      - uses: taiki-e/install-action@just
+      - run: just check
